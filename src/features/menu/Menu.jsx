@@ -15,10 +15,9 @@ function Menu() {
   )
 }
 
-const loader = async () => {
+export const loader = async () => {
   const menu = await getMenu()
   return menu
 }
 
 export default Menu
-export { loader }
