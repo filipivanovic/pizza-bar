@@ -74,12 +74,17 @@ function CreateOrder() {
             // value={withPriority}
             // onChange={(e) => setWithPriority(e.target.checked)}
           />
-          <label htmlFor="priority">Want to yo give your order priority?</label>
+          <label htmlFor="priority">Want to yo give your order prioriy?</label>
         </div>
 
         <div>
           <input type="hidden" name="cart" value={JSON.stringify(cart)} />
-          <button disabled={isSubmitting}>{isSubmitting ? `Placing order...` : `Order now`}</button>
+          <button
+            className={`inline-block rounded-full bg-yellow-400 px-4 py-3 font-semibold uppercase tracking-wide text-stone-800 transition-colors duration-300 hover:bg-yellow-300 focus:bg-yellow-300 focus:outline-none focus:ring focus:ring-yellow-300 focus:ring-offset-2 disabled:cursor-not-allowed`}
+            disabled={isSubmitting}
+          >
+            {isSubmitting ? `Placing order..` : `Order now`}
+          </button>
         </div>
       </Form>
     </div>
@@ -99,7 +104,10 @@ export const action = async ({ request }) => {
 
   const errors = {}
   if (!isValidPhone(order.phone)) errors.phone = 'Invalid phone number'
-  if (Object.keys(errors).length > 0) return { errors }
+  if (Object.keys(errors).length > 0)
+    return {
+      errors
+    }
 
   const newOrder = await createOrder(order)
 
