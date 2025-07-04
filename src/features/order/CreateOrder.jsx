@@ -56,7 +56,11 @@ function CreateOrder() {
           <label className={`sm:basis-40`}>Phone number</label>
           <div className={`grow`}>
             <input type="tel" className="input w-full" name="phone" required />
-            {formErrors?.phone && <p>{formErrors.phone}</p>}
+            {formErrors?.phone && (
+              <p className={`mt-2 rounded-md bg-red-100 p-2 text-xs text-red-700`}>
+                {formErrors.phone}
+              </p>
+            )}
           </div>
         </div>
 
@@ -67,7 +71,7 @@ function CreateOrder() {
           </div>
         </div>
 
-        <div>
+        <div className={`mb-12 flex items-center gap-5`}>
           <input
             className={`h-6 w-6 accent-yellow-400 hover:cursor-pointer focus:outline-none focus:ring focus:ring-yellow-400 focus:ring-offset-2`}
             type="checkbox"
@@ -76,7 +80,9 @@ function CreateOrder() {
             // value={withPriority}
             // onChange={(e) => setWithPriority(e.target.checked)}
           />
-          <label htmlFor="priority">Want to yo give your order prioriy?</label>
+          <label className={`font-medium`} htmlFor="priority">
+            Want to yo give your order prioriy?
+          </label>
         </div>
 
         <div>
@@ -93,7 +99,6 @@ function CreateOrder() {
 export const action = async ({ request }) => {
   const formData = await request.formData()
   const data = Object.fromEntries(formData)
-  console.log(data)
 
   const order = {
     ...data,
@@ -103,10 +108,8 @@ export const action = async ({ request }) => {
 
   const errors = {}
   if (!isValidPhone(order.phone)) errors.phone = 'Invalid phone number'
-  if (Object.keys(errors).length > 0)
-    return {
-      errors
-    }
+
+  if (Object.keys(errors).length > 0) return errors
 
   const newOrder = await createOrder(order)
 
