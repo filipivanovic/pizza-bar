@@ -3,20 +3,13 @@
 import { calcMinutesLeft, formatCurrency, formatDate } from '../../utils/helpers'
 import { useLoaderData } from 'react-router-dom'
 import { getOrder } from '../../services/apiRestaurant.js'
+import OrderItem from './OrderItem.jsx'
 
 function Order() {
   const order = useLoaderData()
   console.log(order)
   // Everyone can search for all orders, so for privacy reasons we're gonna gonna exclude names or address, these are only for the restaurant staff
-  const {
-    id,
-    status,
-    priority,
-    priorityPrice,
-    orderPrice,
-    estimatedDelivery
-    // cart,
-  } = order
+  const { id, status, priority, priorityPrice, orderPrice, estimatedDelivery, cart } = order
 
   const deliveryIn = calcMinutesLeft(estimatedDelivery)
 
@@ -49,6 +42,12 @@ function Order() {
         </p>
         <p>(Estimated delivery: {formatDate(estimatedDelivery)})</p>
       </div>
+
+      <ul className={`divide-y divide-stone-200 border-b border-t`}>
+        {cart.map(item => (
+          <OrderItem item={item} key={item.pizzaId} />
+        ))}
+      </ul>
 
       <div className={`space-y-2 bg-stone-200 px-6 py-5`}>
         <p className={`text-sm font-medium text-stone-600`}>
