@@ -3,10 +3,10 @@ import { Form, redirect, useActionData, useNavigation } from 'react-router-dom'
 import { createOrder } from '../../services/apiRestaurant.js'
 import Button from '../../ui/Button.jsx'
 import { useSelector } from 'react-redux'
+import { getUsername } from '../user/userSlice.js'
 
 // https://uibakery.io/regex-library/phone-number
-const isValidPhone = str =>
-  /^\+?\d{1,4}?[-.\s]?\(?\d{1,3}?\)?[-.\s]?\d{1,4}[-.\s]?\d{1,4}[-.\s]?\d{1,9}$/.test(str)
+const isValidPhone = str => /^\+?\d{1,4}?[-.\s]?\(?\d{1,3}?\)?[-.\s]?\d{1,4}[-.\s]?\d{1,4}[-.\s]?\d{1,9}$/.test(str)
 
 const fakeCart = [
   {
@@ -35,7 +35,7 @@ const fakeCart = [
 // import cart from '../cart/Cart.jsx'
 
 function CreateOrder() {
-  const username = useSelector(state => state.user.username)
+  const username = useSelector(getUsername)
   const navigation = useNavigation()
   const isSubmitting = navigation.state === 'loading'
   // const [withPriority, setWithPriority] = useState(false);
@@ -51,13 +51,7 @@ function CreateOrder() {
       <Form method="POST">
         <div className={`mb-5 flex flex-col gap-2 sm:flex-row sm:items-center`}>
           <label className={`sm:basis-40`}>First Name</label>
-          <input
-            className="input grow"
-            type="text"
-            defaultValue={username}
-            name="customer"
-            required
-          />
+          <input className="input grow" type="text" defaultValue={username} name="customer" required />
         </div>
 
         <div className={`mb-5 flex flex-col gap-2 sm:flex-row sm:items-center`}>
@@ -65,9 +59,7 @@ function CreateOrder() {
           <div className={`grow`}>
             <input type="tel" className="input w-full" name="phone" required />
             {formErrors?.phone && (
-              <p className={`mt-2 rounded-md bg-red-100 p-2 text-xs text-red-700`}>
-                {formErrors.phone}
-              </p>
+              <p className={`mt-2 rounded-md bg-red-100 p-2 text-xs text-red-700`}>{formErrors.phone}</p>
             )}
           </div>
         </div>
