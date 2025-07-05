@@ -2,33 +2,34 @@ import LinkButton from '../../ui/LinkButton.jsx'
 import Button from '../../ui/Button.jsx'
 import CartItem from './CartItem.jsx'
 import { useSelector } from 'react-redux'
+import { getCart } from './cartSlice.js'
 
-const fakeCart = [
-  {
-    pizzaId: 12,
-    name: 'Mediterranean',
-    quantity: 2,
-    unitPrice: 16,
-    totalPrice: 32
-  },
-  {
-    pizzaId: 6,
-    name: 'Vegetale',
-    quantity: 1,
-    unitPrice: 13,
-    totalPrice: 13
-  },
-  {
-    pizzaId: 11,
-    name: 'Spinach and Mushroom',
-    quantity: 1,
-    unitPrice: 15,
-    totalPrice: 15
-  }
-]
+// const fakeCart = [
+//   {
+//     pizzaId: 12,
+//     name: 'Mediterranean',
+//     quantity: 2,
+//     unitPrice: 16,
+//     totalPrice: 32
+//   },
+//   {
+//     pizzaId: 6,
+//     name: 'Vegetale',
+//     quantity: 1,
+//     unitPrice: 13,
+//     totalPrice: 13
+//   },
+//   {
+//     pizzaId: 11,
+//     name: 'Spinach and Mushroom',
+//     quantity: 1,
+//     unitPrice: 15,
+//     totalPrice: 15
+//   }
+// ]
 
 function Cart() {
-  const cart = fakeCart
+  const cart = useSelector(getCart)
   const username = useSelector(state => state.user.username)
 
   return (
