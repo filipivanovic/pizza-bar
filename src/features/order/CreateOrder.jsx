@@ -3,7 +3,7 @@ import { Form, redirect, useActionData, useNavigation } from 'react-router-dom'
 import { createOrder } from '../../services/apiRestaurant.js'
 import Button from '../../ui/Button.jsx'
 import { useDispatch, useSelector } from 'react-redux'
-import { fetchAddress, getUsername } from '../user/userSlice.js'
+import { fetchAddress } from '../user/userSlice.js'
 import { clearCart, getCart, getTotalCartPrice } from '../cart/cartSlice.js'
 import EmptyCart from '../cart/EmptyCart.jsx'
 import store from '../../store.js'
@@ -16,7 +16,8 @@ const isValidPhone = str => /^\+?\d{1,4}?[-.\s]?\(?\d{1,3}?\)?[-.\s]?\d{1,4}[-.\
 
 function CreateOrder() {
   const [withPriority, setWithPriority] = useState(false)
-  const username = useSelector(getUsername)
+  const { username, status: addressStatus, position, address, error: errorAddress } = useSelector(state => state.user)
+  const isLoadingAddress = addressStatus === 'loading'
   const navigation = useNavigation()
   const isSubmitting = navigation.state === 'loading'
   const cart = useSelector(getCart)
@@ -34,10 +35,6 @@ function CreateOrder() {
     <div className={`px-4 py-6`}>
       <h2 className={`mb-8 text-xl font-semibold`}>Ready to order? Let&#39;s go!</h2>
 
-      <button onClick={() => dispatch(fetchAddress())} className={`text-sm text-yellow-500`}>
-        get position
-      </button>
-
       <Form method="POST">
         <div className={`mb-5 flex flex-col gap-2 sm:flex-row sm:items-center`}>
           <label className={`sm:basis-40`}>First Name</label>
@@ -54,11 +51,35 @@ function CreateOrder() {
           </div>
         </div>
 
-        <div className={`mb-5 flex flex-col gap-2 sm:flex-row sm:items-center`}>
+        <div className={`relative mb-5 flex flex-col gap-2 sm:flex-row sm:items-center`}>
           <label className={`sm:basis-40`}>Address</label>
           <div className={`grow`}>
-            <input className={`input w-full`} type="text" name="address" required />
+            <input
+              className={`input w-full`}
+              type="text"
+              name="address"
+              defaultValue={address}
+              disabled={isLoadingAddress}
+              required
+            />
+            {addressStatus === 'error' && (
+              <p className={`mt-2 rounded-md bg-red-100 p-2 text-xs text-red-700`}>{errorAddress}</p>
+            )}
           </div>
+          {!position.latitude && !position.longitude && !isLoadingAddress && (
+            <span className={`absolute right-[3px] top-[35px] z-50 sm:top-[3px] md:right-[5px] md:top-[5px]`}>
+              <Button
+                disabled={isLoadingAddress}
+                type={`small`}
+                onClick={e => {
+                  e.preventDefault()
+                  dispatch(fetchAddress())
+                }}
+              >
+                Get position
+              </Button>
+            </span>
+          )}
         </div>
 
         <div className={`mb-12 flex items-center gap-5`}>
@@ -77,7 +98,12 @@ function CreateOrder() {
 
         <div>
           <input type="hidden" name="cart" value={JSON.stringify(cart)} />
-          <Button type={`primary`} disabled={isSubmitting}>
+          <input
+            type="hidden"
+            name="position"
+            value={`${position.longitute && position.latitude},${position.longitute && position.longitude ? position.latitude + ',' + position.longitude : ''}`}
+          />
+          <Button type={`primary`} disabled={isSubmitting || isLoadingAddress}>
             {isSubmitting ? `Placing order..` : `Order now for ${formatCurrency(totalPrice)}`}
           </Button>
         </div>
@@ -95,7 +121,6 @@ export const action = async ({ request }) => {
     cart: JSON.parse(data.cart),
     priority: data.priority === 'true'
   }
-
   const errors = {}
   if (!isValidPhone(order.phone)) errors.phone = 'Invalid phone number'
 
