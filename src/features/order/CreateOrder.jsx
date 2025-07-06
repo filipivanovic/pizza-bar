@@ -1,12 +1,13 @@
-// import { useState } from "react";
+import { useState } from 'react'
 import { Form, redirect, useActionData, useNavigation } from 'react-router-dom'
 import { createOrder } from '../../services/apiRestaurant.js'
 import Button from '../../ui/Button.jsx'
 import { useSelector } from 'react-redux'
 import { getUsername } from '../user/userSlice.js'
-import { clearCart, getCart } from '../cart/cartSlice.js'
+import { clearCart, getCart, getTotalCartPrice } from '../cart/cartSlice.js'
 import EmptyCart from '../cart/EmptyCart.jsx'
 import store from '../../store.js'
+import { formatCurrency } from '../../utils/helpers.js'
 
 // https://uibakery.io/regex-library/phone-number
 const isValidPhone = str => /^\+?\d{1,4}?[-.\s]?\(?\d{1,3}?\)?[-.\s]?\d{1,4}[-.\s]?\d{1,4}[-.\s]?\d{1,9}$/.test(str)
@@ -14,11 +15,14 @@ const isValidPhone = str => /^\+?\d{1,4}?[-.\s]?\(?\d{1,3}?\)?[-.\s]?\d{1,4}[-.\
 // import cart from '../cart/Cart.jsx'
 
 function CreateOrder() {
+  const [withPriority, setWithPriority] = useState(false)
   const username = useSelector(getUsername)
   const navigation = useNavigation()
   const isSubmitting = navigation.state === 'loading'
   const cart = useSelector(getCart)
-  // const [withPriority, setWithPriority] = useState(false);
+  const totalCartPrice = useSelector(getTotalCartPrice)
+  const priorityPrice = withPriority ? totalCartPrice * 0.2 : 0
+  const totalPrice = totalCartPrice + priorityPrice
 
   const formErrors = useActionData()
 
@@ -57,8 +61,8 @@ function CreateOrder() {
             type="checkbox"
             name="priority"
             id="priority"
-            // value={withPriority}
-            // onChange={(e) => setWithPriority(e.target.checked)}
+            value={withPriority}
+            onChange={e => setWithPriority(e.target.checked)}
           />
           <label className={`font-medium`} htmlFor="priority">
             Want to yo give your order prioriy?
@@ -68,7 +72,7 @@ function CreateOrder() {
         <div>
           <input type="hidden" name="cart" value={JSON.stringify(cart)} />
           <Button type={`primary`} disabled={isSubmitting}>
-            {isSubmitting ? `Placing order..` : `Order now`}
+            {isSubmitting ? `Placing order..` : `Order now for ${formatCurrency(totalPrice)}`}
           </Button>
         </div>
       </Form>
@@ -83,7 +87,7 @@ export const action = async ({ request }) => {
   const order = {
     ...data,
     cart: JSON.parse(data.cart),
-    priority: data.priority === 'on'
+    priority: data.priority === 'true'
   }
 
   const errors = {}
