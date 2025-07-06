@@ -4,33 +4,12 @@ import { createOrder } from '../../services/apiRestaurant.js'
 import Button from '../../ui/Button.jsx'
 import { useSelector } from 'react-redux'
 import { getUsername } from '../user/userSlice.js'
+import { clearCart, getCart } from '../cart/cartSlice.js'
+import EmptyCart from '../cart/EmptyCart.jsx'
+import store from '../../store.js'
 
 // https://uibakery.io/regex-library/phone-number
 const isValidPhone = str => /^\+?\d{1,4}?[-.\s]?\(?\d{1,3}?\)?[-.\s]?\d{1,4}[-.\s]?\d{1,4}[-.\s]?\d{1,9}$/.test(str)
-
-const fakeCart = [
-  {
-    pizzaId: 12,
-    name: 'Mediterranean',
-    quantity: 2,
-    unitPrice: 16,
-    totalPrice: 32
-  },
-  {
-    pizzaId: 6,
-    name: 'Vegetale',
-    quantity: 1,
-    unitPrice: 13,
-    totalPrice: 13
-  },
-  {
-    pizzaId: 11,
-    name: 'Spinach and Mushroom',
-    quantity: 1,
-    unitPrice: 15,
-    totalPrice: 15
-  }
-]
 
 // import cart from '../cart/Cart.jsx'
 
@@ -38,11 +17,12 @@ function CreateOrder() {
   const username = useSelector(getUsername)
   const navigation = useNavigation()
   const isSubmitting = navigation.state === 'loading'
+  const cart = useSelector(getCart)
   // const [withPriority, setWithPriority] = useState(false);
 
   const formErrors = useActionData()
 
-  const cart = fakeCart
+  if (!cart.length) return <EmptyCart />
 
   return (
     <div className={`px-4 py-6`}>
@@ -112,6 +92,8 @@ export const action = async ({ request }) => {
   if (Object.keys(errors).length > 0) return errors
 
   const newOrder = await createOrder(order)
+
+  store.dispatch(clearCart())
 
   return redirect(`/order/${newOrder.id}`)
 }
